@@ -72,6 +72,7 @@ void setup() {
     Mat4 rotateDown = mat4RotateX(0.80f); //Rotate around origin/orbit
     renderer.camera_view = mat4MultiplyM(&rotateDown, &v);
 }
+
 Pixel *getFrameBuffer(Renderer *ren, BackEnd *backEnd);
 
 void loop(uint8_t *buffer) {
@@ -104,14 +105,19 @@ void app_main(void) {
     init_lcd();
     setup();
     while (1) {
-        timeProbe_start(&fps);
-        esp_lcd_panel_draw_bitmap(lcd_panel_handle, 0, 0, 240, 240, getFrameBuffer(0, 0));
+//        timeProbe_start(&fps);
+//        esp_lcd_panel_draw_bitmap(lcd_panel_handle, 0, 0, 240, 240, getFrameBuffer(0, 0));
 
-        loop(0);
 //        while (esp_timer_get_time()<fps.time+41*1000){
 //            vTaskDelay(pdMS_TO_TICKS(1));
 //        }
-        ESP_LOGI("fps", "fps: %f", 1000.0f / (timeProbe_stop(&fps) / 1000.0));
+        timeProbe_start(&fps);
+
+        for (int i = 0; i < 200; ++i) {
+            loop(0);
+        }
+        ESP_LOGI("fps", "fps: %f", 1000.0 / (timeProbe_stop(&fps) / 1000.0 / 200.0));
+
 
     }
 

@@ -1,6 +1,5 @@
 #include "texture.h"
 #include "math.h"
-#include "esp_log.h"
 
 int texture_init( Texture *f, Vec2i size, Pixel *buf )
 {
@@ -17,12 +16,12 @@ int texture_init( Texture *f, Vec2i size, Pixel *buf )
 }
 
 //#if defined(WIN32) || defined(__linux__)
-//void texture_draw(Texture *f, Vec2i pos, Pixel color)
-//{
-////    f->frameBuffer[pos.x + pos.y * f->size.x] = color;
-//    *((uint8_t *)&(f->frameBuffer[pos.x + pos.y * f->size.x])) = *((uint8_t *)&color+1);
-//    *(((uint8_t *)&(f->frameBuffer[pos.x + pos.y * f->size.x]))+1) = *(uint8_t *)&color;
-//}
+void texture_draw(Texture *f, Vec2i pos, Pixel color)
+{
+//    f->frameBuffer[pos.x + pos.y * f->size.x] = color;
+    *((uint8_t *)&(f->frameBuffer[pos.x + pos.y * f->size.x])) = *((uint8_t *)&color+1);
+    *(((uint8_t *)&(f->frameBuffer[pos.x + pos.y * f->size.x]))+1) = *(uint8_t *)&color;
+}
 //#endif
 
 Pixel texture_read(Texture *f, Vec2i pos)
