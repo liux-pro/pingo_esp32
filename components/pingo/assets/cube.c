@@ -45,6 +45,7 @@ Mesh mesh_cube = {
     .indexes_count = 36,
     .pos_indices = &i[0],
     .positions = &ver[0],
-    .textCoord = &tex[0]
+    .textCoord = &tex[0],
+    .tex_indices = &i[0]
 };
 

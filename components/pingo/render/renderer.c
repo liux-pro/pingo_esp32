@@ -9,6 +9,7 @@
 #include "rasterizer.h"
 #include "object.h"
 /*#include "../backend/ttgobackend.h"*/
+extern PingoDepth * zetaBuffer;
 
 
 int renderFrame(Renderer * r, Renderable ren) {
@@ -82,8 +83,11 @@ int orient2d( Vec2i a,  Vec2i b,  Vec2i c)
 
 void backendDrawPixel (Renderer * r, Texture * f, Vec2i pos, Pixel color, float illumination) {
     //If backend spcifies something..
-    if (r->backEnd->drawPixel != 0)
-        r->backEnd->drawPixel(f, pos, color, illumination);
+//    if (r->backEnd->drawPixel != 0)
+//        r->backEnd->drawPixel(f, pos, color, illumination);
+
+//    *((uint8_t *)&(f->frameBuffer[pos.x + pos.y * f->size.x])) = *((uint8_t *)&color+1);
+//    *(((uint8_t *)&(f->frameBuffer[pos.x + pos.y * f->size.x]))+1) = *(uint8_t *)&color;
 
     //By default call this
     texture_draw(f, pos, pixelMul(color,illumination));
@@ -216,19 +220,22 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
                 if (depth < 0.0 || depth > 1.0)
                     continue;
 
-                if (depth_check(r->backEnd->getZetaBuffer(r,r->backEnd), x + y * scrSize.x, 1-depth ))
+//                if (depth_check(r->backEnd->getZetaBuffer(r,r->backEnd), x + y * scrSize.x, 1-depth ))
+                if (depth_check(zetaBuffer, x + y * scrSize.x, 1-depth ))
                     continue;
 
-                depth_write(r->backEnd->getZetaBuffer(r,r->backEnd), x + y * scrSize.x, 1- depth );
+//                depth_write(r->backEnd->getZetaBuffer(r,r->backEnd), x + y * scrSize.x, 1- depth );
+                depth_write(zetaBuffer, x + y * scrSize.x, 1- depth );
 
                 if (o->material != 0) {
                     //Texture lookup
 
-                    float textCoordx = -(w0 * tca.x + w1 * tcb.x + w2 * tcc.x)* areaInverse * depth;
-                    float textCoordy = -(w0 * tca.y + w1 * tcb.y + w2 * tcc.y)* areaInverse * depth;
+//                    float textCoordx = -(w0 * tca.x + w1 * tcb.x + w2 * tcc.x)* areaInverse * depth;
+//                    float textCoordy = -(w0 * tca.y + w1 * tcb.y + w2 * tcc.y)* areaInverse * depth;
 
-                    Pixel text = texture_readF(o->material->texture, (Vec2f){textCoordx,textCoordy});
-                    backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, text, diffuseLight);
+//                    Pixel text = texture_readF(o->material->texture, (Vec2f){textCoordx,textCoordy});
+//                    backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, text, diffuseLight);
+                    backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, o->material->texture->frameBuffer[0], diffuseLight);
                 } else {
                     backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, pixelFromUInt8(255), diffuseLight);
                 }
@@ -265,7 +272,8 @@ int rendererInit(Renderer * r, Vec2i size, BackEnd * backEnd) {
 int rendererRender(Renderer * r) {
 
     int pixels = r->frameBuffer.size.x * r->frameBuffer.size.y;
-    memset(r->backEnd->getZetaBuffer(r,r->backEnd), 0, pixels * sizeof (PingoDepth));
+//    memset(r->backEnd->getZetaBuffer(r,r->backEnd), 0, pixels * sizeof (PingoDepth));
+    memset(zetaBuffer, 0, pixels * sizeof (PingoDepth));
 
     r->backEnd->beforeRender(r, r->backEnd);
 
