@@ -8,6 +8,8 @@
 #include "scene.h"
 #include "rasterizer.h"
 #include "object.h"
+#include "timeProbe.h"
+#include "esp_log.h"
 /*#include "../backend/ttgobackend.h"*/
 extern PingoDepth * zetaBuffer;
 
@@ -133,7 +135,7 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
         Vec3f nb = vec3fsubV(*((Vec3f*)(&a)), *((Vec3f*)(&c)));
         Vec3f normal = vec3Normalize(vec3Cross(na, nb));
         Vec3f light = vec3Normalize((Vec3f){-8,5,5});
-        float diffuseLight = (1.0 + vec3Dot(normal, light)) *0.5;
+        float diffuseLight = (1.0f + vec3Dot(normal, light)) *0.5f;
         diffuseLight = MIN(1.0, MAX(diffuseLight, 0));
 
         a = mat4MultiplyVec4( &a, &v);
@@ -150,9 +152,9 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
            continue;
 
         // convert to device coordinates by perspective division
-        a.w = 1.0 / a.w;
-        b.w = 1.0 / b.w;
-        c.w = 1.0 / c.w;
+        a.w = 1.0f / a.w;
+        b.w = 1.0f / b.w;
+        c.w = 1.0f / c.w;
         a.x *= a.w; a.y *= a.w; a.z *= a.w;
         b.x *= b.w; b.y *= b.w; b.z *= b.w;
         c.x *= c.w; c.y *= c.w; c.z *= c.w;
@@ -184,7 +186,7 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
         int32_t area =  orient2d( a_s, b_s, c_s);
         if (area == 0)
             continue;
-        float areaInverse = 1.0/area;
+        float areaInverse = 1.0f/area;
 
         int32_t A01 = ( a_s.y - b_s.y); //Barycentric coordinates steps
         int32_t B01 = ( b_s.x - a_s.x); //Barycentric coordinates steps
