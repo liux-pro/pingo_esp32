@@ -232,12 +232,12 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
                 if (o->material != 0) {
                     //Texture lookup
 
-//                    float textCoordx = -(w0 * tca.x + w1 * tcb.x + w2 * tcc.x)* areaInverse * depth;
-//                    float textCoordy = -(w0 * tca.y + w1 * tcb.y + w2 * tcc.y)* areaInverse * depth;
+                    float textCoordx = -(w0 * tca.x + w1 * tcb.x + w2 * tcc.x)* areaInverse * depth;
+                    float textCoordy = -(w0 * tca.y + w1 * tcb.y + w2 * tcc.y)* areaInverse * depth;
 
-//                    Pixel text = texture_readF(o->material->texture, (Vec2f){textCoordx,textCoordy});
-//                    backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, text, diffuseLight);
-                    backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, o->material->texture->frameBuffer[0], diffuseLight);
+                    Pixel text = texture_readF(o->material->texture, (Vec2f){textCoordx,textCoordy});
+                    backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, text, diffuseLight);
+//                    backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, o->material->texture->frameBuffer[0], diffuseLight);
                 } else {
                     backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, pixelFromUInt8(255), diffuseLight);
                 }

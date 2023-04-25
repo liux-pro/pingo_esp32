@@ -1,3 +1,4 @@
+#include <esp_heap_caps.h>
 #include "backend.h"
 
 #include "render/renderer.h"

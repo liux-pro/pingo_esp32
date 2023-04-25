@@ -9,6 +9,7 @@
 #include "backend.h"
 #include "esp_log.h"
 #include "config.h"
+#include "string.h"
 
 #include "timeProbe.h"
 #include "lcd.h"
@@ -58,19 +59,22 @@ void pingo_init() {
     }
 
 
-#define N  4
+#define N  2
     texture_init(&tex1, (Vec2i) {N, N}, malloc(N * N * sizeof(Pixel)));
 
 
     for (int i = 0; i < N; i++)
         for (int y = 0; y < N; y++) {
-            Pixel p;
-            p.red = 0;
-            p.green = 255;
-            p.blue = 0;
-            tex1.frameBuffer[(i * N + y)] = p;
-//            tex1.frameBuffer[(i * N + y)] = pixelRandom();;
+//            Pixel p;
+//            p.red = 255;
+//            p.green = 255;
+//            p.blue = 255;
+//            tex1.frameBuffer[(i * N + y)] = p;
+            tex1.frameBuffer[(i * N + y)] = pixelRandom();;
         }
+//    tex1.frameBuffer[0].red=255;
+//    tex1.frameBuffer[1].green=255;
+//    tex1.frameBuffer[2].blue=255;
 
     m.texture = &tex1;
     for (int i = 0; i < CUBE_NUMBER; ++i) {
@@ -84,17 +88,13 @@ void pingo_init() {
 void setup() {
     pingo_init();
     // PROJECTION MATRIX - Defines the type of projection used
-    renderer.camera_projection = mat4Perspective(1, 2500.0f, (float) size.x / (float) size.y, 0.6);
+    renderer.camera_projection = mat4Perspective(1, 2500.0f, (float) size.x / (float) size.y, 0.6f);
 
     //VIEW MATRIX - Defines position and orientation of the "camera"
     Mat4 v = mat4Translate((Vec3f) {0, 0, -100});
     Mat4 rotateDown = mat4RotateX(0.40f); //Rotate around origin/orbit
     renderer.camera_view = mat4MultiplyM(&rotateDown, &v);
-}
 
-Pixel *getFrameBuffer(Renderer *ren, BackEnd *backEnd);
-
-void loop(uint8_t *buffer) {
     for (int i = 0; i < CUBE_NUMBER; ++i) {
         //TEA TRANSFORM - Defines position and orientation of the object
         object[i].transform = mat4RotateZ(3.142128f);
@@ -103,51 +103,37 @@ void loop(uint8_t *buffer) {
 //        t = mat4Translate((Vec3f) {i*11, 0, 0});
         t = mat4Translate(position[i]);
         object[i].transform = mat4MultiplyM(&object[i].transform, &t);
-        t = mat4RotateX(3.14f * 0.1);
+        t = mat4RotateX(3.14f * 0.1f);
         object[i].transform = mat4MultiplyM(&object[i].transform, &t);
     }
-
-    //SCENE
-    s.transform = mat4RotateY(phi);
-    phi += 0.06f;
-//    phi= 1;
-
-    rendererRender(&renderer);
-    //111111111111111111111111111111111
-
-//    getFrameBuffer(0, 0);
-//    memcpy(buffer, getFrameBuffer(0, 0), SCREEN_WIDTH * SCREEN_HEIGHT * 2);
-
-
 }
 
+Pixel *getFrameBuffer(Renderer *ren, BackEnd *backEnd);
 
-
-
+void loop(uint8_t *buffer) {
+    s.transform = mat4RotateY(phi);
+    phi += 0.02f;
+    rendererRender(&renderer);
+}
 
 timeProbe_t fps;
-uint16_t buffer2[SCREEN_HEIGHT*SCREEN_WIDTH];
+//uint16_t buffer2[SCREEN_HEIGHT*SCREEN_WIDTH];
 
 void app_main(void) {
     startTaskMonitor(5000);
     init_lcd();
     setup();
     while (1) {
-//        timeProbe_start(&fps);
-//        esp_lcd_panel_draw_bitmap(lcd_panel_handle, 0, 0, 240, 240, getFrameBuffer(0, 0));
-
-//        while (esp_timer_get_time()<fps.time+41*1000){
-//            vTaskDelay(pdMS_TO_TICKS(1));
-//        }
+        const int CNT = 888;
         timeProbe_start(&fps);
-
-        for (int i = 0; i < 200; ++i) {
+        for (int i = 0; i < CNT; ++i) {
             loop(0);
             esp_lcd_panel_draw_bitmap(lcd_panel_handle, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, getFrameBuffer(0, 0));
         }
-        ESP_LOGI("fps", "fps: %f", 1000.0 / (timeProbe_stop(&fps) / 1000.0 / 200.0));
-
-
+        ESP_LOGI("fps", "fps: %f", 1000.0 / (timeProbe_stop(&fps) / 1000.0 / CNT));
+        while (1){
+            vTaskDelay(1);
+        };
     }
 
 }
